@@ -5,7 +5,7 @@ import Tasks from '../views/Tasks'
 
 const routes = [
   {
-    path: '/',
+    path: '/home',
     name: 'home',
     component: HomeView
   },
@@ -18,6 +18,10 @@ const routes = [
     path: '/tasks',
     name: 'tasks',
     component: Tasks
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: '/home'
   }
 ]
 
