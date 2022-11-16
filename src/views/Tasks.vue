@@ -63,17 +63,19 @@ export default {
     }
   },
   mounted () {
+    const backend = process.env.VUE_APP_BACKEND_BASE_URL
     const requestOptions = {
       method: 'GET',
       redirect: 'follow'
     }
 
-    fetch('http://localhost:8080/api/v1/tasks', requestOptions)
+    fetch(backend + '/api/v1/tasks', requestOptions)
       .then(response => response.json())
       .then(result => result.forEach(task => {
         this.tasks.push(task)
       }))
       .catch(error => console.log('error', error))
+    console.log(backend)
   }
 }
 </script>
