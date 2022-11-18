@@ -12,15 +12,18 @@
               <div class="col-12">
                 <div class="input-group">
                   <label class="col-sm-2 col-form-label" for="formTitle">Title</label>
-                  <input type="text" id="formTitle" class="form-control">
+                  <input type="text" id="formTitle" class="form-control" v-model="title">
 
-                  <label class="col-sm-2 col-form-label" for="formTask">Task</label>
-                  <input type="text" id="formTask" class="form-control">
+                  <label class="col-sm-2 col-form-label" for="formDesc">Description</label>
+                  <input type="text" id="formDesc" class="form-control" v-model="description">
+
+                  <label class="col-sm-2 col-form-label" for="formDate">Date</label>
+                  <input type="text" id="formDate" class="form-control" v-model="date">
                 </div>
               </div>
 
               <div class="col-12">
-                <button type="submit" class="btn btn-primary">Save</button>
+                <button type="submit" class="btn btn-primary" @click.prevent="createTask">Save</button>
               </div>
             </form>
 
@@ -53,13 +56,47 @@
   </div>
 </section>
 </template>
-
 <script>
 export default {
   name: 'Tasks',
   data () {
     return {
+      title: '',
+      description: '',
+      date: '',
+      userID: 35,
       tasks: []
+    }
+  },
+  methods: {
+    createTask () {
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v1/tasks'
+      const myHeaders = new Headers()
+      // TODO: Implement Datepicker in HTML
+      const dateString = this.date
+      const dateParts = dateString.split('.')
+      const dateObj = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0])
+      myHeaders.append('Content-Type', 'application/json')
+
+      const raw = JSON.stringify({
+        datum: dateObj,
+        inhalt: this.description,
+        titel: this.title,
+        // TODO: Connect to User-Login to get the corresponding UserID when logged in
+        benutzer_id: this.userID
+      })
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      }
+
+      fetch(endpoint, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error))
     }
   },
   mounted () {
