@@ -37,7 +37,7 @@
                 <tr v-for="task in tasks" :key="task.id">
                   <td>{{task.titel}}</td>
                   <td>{{task.inhalt}}</td>
-                  <td>{{task.datum}}</td>
+                  <td>{{new Date(task.datum).toLocaleDateString()}}</td>
                   <td>
                     <button type="submit" class="btn btn-danger">Delete</button>
                     <button type="submit" class="btn btn-success ms-1">Finished</button>
