@@ -57,6 +57,7 @@
 </section>
 </template>
 <script>
+
 export default {
   name: 'Tasks',
   data () {

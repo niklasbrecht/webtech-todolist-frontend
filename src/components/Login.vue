@@ -8,14 +8,14 @@
             <h1 class="text-center">Login Form</h1>
             <form>
               <div class="mb-3 mt-4">
-                <label for="exampleInputEmail1" class="form-label">Email address</label>
-                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp">
+                <label for="exampleInputEmail1" class="form-label">Email</label>
+                <input type="email" class="form-control" id="exampleInputEmail1" aria-describedby="emailHelp" v-model="email">
               </div>
               <div class="mb-3">
                 <label for="exampleInputPassword1" class="form-label">Password</label>
-                <input type="password" class="form-control" id="exampleInputPassword1">
+                <input type="password" class="form-control" id="exampleInputPassword1" v-model="password">
               </div>
-              <button type="submit" class="btn btn-light mt-3">LOGIN</button>
+              <button type="submit" class="btn btn-light mt-3" @click.prevent="requestToken">LOGIN</button>
               <p>Not a member? <a href="#">Signup now</a></p>
             </form>
           </div>
@@ -27,7 +27,43 @@
 
 <script>
 export default {
-  name: 'Login'
+  name: 'Login',
+  data () {
+    return {
+      email: '',
+      password: ''
+    }
+  },
+  methods: {
+    requestToken () {
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/auth'
+
+      // create a buffer
+      const buff = Buffer.from(this.email + ':' + this.password, 'utf-8')
+
+      // decode buffer as Base64
+      const raw = buff.toString('base64')
+
+      const myHeaders = new Headers()
+
+      myHeaders.append('Authorization', 'Basic ' + raw)
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        redirect: 'follow'
+      }
+
+      // calls async method so json-web-token waits for result
+      this.fetchResult(endpoint, requestOptions)
+    },
+    async fetchResult (endpoint, requestOptions) {
+      fetch(endpoint, requestOptions)
+        .then(response => response.text())
+        .then(async result => { localStorage.setItem('jsonWebToken', result) })
+        .catch(error => console.log('error', error))
+    }
+  }
 }
 </script>
 
