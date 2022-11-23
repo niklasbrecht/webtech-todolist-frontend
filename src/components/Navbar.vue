@@ -12,6 +12,9 @@
           <router-link class="nav-link" to="/tasks">Tasks</router-link>
         </div>
       </div>
+      <ul class="nav navbar-nav navbar-right">
+        <li><a href="#" data-bs-toggle="modal" data-bs-target="#ModalForm"><span class="glyphicon glyphicon-log-in"></span> Login</a></li>
+      </ul>
     </div>
   </nav>
 </template>

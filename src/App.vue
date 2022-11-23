@@ -1,14 +1,16 @@
 <template>
   <navbar></navbar>
+  <Login></Login>
   <router-view/>
 </template>
 
 <script>
 import Navbar from '@/components/Navbar'
+import Login from '@/components/Login'
 
 export default {
   name: 'Nav-bar',
-  components: { Navbar }
+  components: { Navbar, Login }
 }
 </script>
 <style>
