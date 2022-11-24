@@ -42,11 +42,11 @@ export default {
       const buff = Buffer.from(this.email + ':' + this.password, 'utf-8')
 
       // decode buffer as Base64
-      const raw = buff.toString('base64')
+      const base64 = buff.toString('base64')
 
       const myHeaders = new Headers()
 
-      myHeaders.append('Authorization', 'Basic ' + raw)
+      myHeaders.append('Authorization', 'Basic ' + base64)
 
       const requestOptions = {
         method: 'POST',
@@ -54,13 +54,19 @@ export default {
         redirect: 'follow'
       }
 
-      // calls async method so json-web-token waits for result
       this.fetchResult(endpoint, requestOptions)
     },
+    // calls async method so json-web-token waits for result
     async fetchResult (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
-        .then(async result => { localStorage.setItem('jsonWebToken', result) })
+        .then(async result => {
+          localStorage.setItem('jsonWebToken', result)
+          localStorage.setItem('email', this.email)
+
+          // reload so login status changes and modal closes automatically - bad solution?... I dont know
+          document.location.reload()
+        })
         .catch(error => console.log('error', error))
     }
   }

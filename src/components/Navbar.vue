@@ -13,7 +13,7 @@
         </div>
       </div>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" data-bs-toggle="modal" data-bs-target="#LoginModalForm"> Login </a></li>
+        <li><a href="#" id="navbar-login" data-bs-toggle="modal" data-bs-target="#LoginModalForm" @click="onLoginClick"> Login </a></li>
       </ul>
     </div>
   </nav>
@@ -21,8 +21,33 @@
 
 <script>
 export default {
-  name: 'Nav-bar'
+  name: 'Nav-bar',
+  mounted () {
+    if (this.loggedIn()) {
+      document.getElementById('navbar-login').innerHTML = 'logout'
+    } else {
+      document.getElementById('navbar-login').innerHTML = 'login'
+    }
+  },
+  methods: {
+    onLoginClick () {
+      if (this.loggedIn()) {
+        // log user out
+        localStorage.removeItem('jsonWebToken')
+        localStorage.removeItem('email')
+
+        // reload so modal closes and login status changes - bad solution
+        document.location.reload()
+      } else {
+        // open modal
+      }
+    },
+    loggedIn () {
+      return localStorage.getItem('jsonWebToken') != null
+    }
+  }
 }
+
 </script>
 
 <style scoped>

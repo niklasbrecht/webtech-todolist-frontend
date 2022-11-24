@@ -65,26 +65,44 @@ export default {
       title: '',
       description: '',
       date: '',
-      userID: 35,
       tasks: []
     }
   },
+  mounted () {
+    const backend = process.env.VUE_APP_BACKEND_BASE_URL
+    const myHeaders = new Headers()
+    myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
+
+    const requestOptions = {
+      method: 'GET',
+      headers: myHeaders,
+      redirect: 'follow'
+    }
+
+    fetch(backend + '/api/v2/tasks', requestOptions)
+      .then(response => response.json())
+      .then(result => result.forEach(task => {
+        this.tasks.push(task)
+      }))
+      .catch(error => console.log('error', error))
+    console.log(backend)
+  },
   methods: {
     createTask () {
-      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v1/tasks'
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()
       // TODO: Implement Datepicker in HTML
       const dateString = this.date
       const dateParts = dateString.split('.')
       const dateObj = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0])
       myHeaders.append('Content-Type', 'application/json')
+      myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
 
       const raw = JSON.stringify({
+
         datum: dateObj,
         inhalt: this.description,
-        titel: this.title,
-        // TODO: Connect to User-Login to get the corresponding UserID when logged in
-        benutzer_id: this.userID
+        titel: this.title
       })
 
       const requestOptions = {
@@ -94,26 +112,18 @@ export default {
         redirect: 'follow'
       }
 
+      this.fetchResult(endpoint, requestOptions)
+    },
+    async fetchResult (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
-        .then(result => console.log(result))
+        .then(async result => {
+          console.log(result)
+          // reload so tasks will be shown
+          document.location.reload()
+        })
         .catch(error => console.log('error', error))
     }
-  },
-  mounted () {
-    const backend = process.env.VUE_APP_BACKEND_BASE_URL
-    const requestOptions = {
-      method: 'GET',
-      redirect: 'follow'
-    }
-
-    fetch(backend + '/api/v1/tasks', requestOptions)
-      .then(response => response.json())
-      .then(result => result.forEach(task => {
-        this.tasks.push(task)
-      }))
-      .catch(error => console.log('error', error))
-    console.log(backend)
   }
 }
 </script>
