@@ -18,7 +18,7 @@
                   <input type="text" id="formDesc" class="form-control" v-model="description">
 
                   <label class="col-sm-2 col-form-label" for="formDate">Date</label>
-                  <input type="text" id="formDate" class="form-control" v-model="date">
+                  <Datepicker v-model="date"></Datepicker>
                 </div>
               </div>
 
@@ -57,14 +57,14 @@
 </section>
 </template>
 <script>
-
+import { ref } from 'vue'
 export default {
   name: 'Tasks',
   data () {
     return {
       title: '',
       description: '',
-      date: '',
+      date: null,
       tasks: []
     }
   },
@@ -91,16 +91,15 @@ export default {
     createTask () {
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()
-      // TODO: Implement Datepicker in HTML
-      const dateString = this.date
-      const dateParts = dateString.split('.')
-      const dateObj = new Date(+dateParts[2], dateParts[1] - 1, +dateParts[0])
+      const date = ref(new Date()).value
+      const dateObject = new Date(date.getFullYear() + '-' + date.getMonth() + '-' + date.getDay())
+
       myHeaders.append('Content-Type', 'application/json')
       myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
 
       const raw = JSON.stringify({
 
-        datum: dateObj,
+        datum: dateObject,
         inhalt: this.description,
         titel: this.title
       })
