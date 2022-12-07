@@ -1,13 +1,12 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import About from '../views/About'
 import Tasks from '../views/Tasks'
-import Home from '../views/Home'
 
 const routes = [
   {
-    path: '/home',
-    name: 'home',
-    component: Home
+    path: '/tasks',
+    name: 'tasks',
+    component: Tasks
   },
   {
     path: '/about',
@@ -15,13 +14,8 @@ const routes = [
     component: About
   },
   {
-    path: '/tasks',
-    name: 'tasks',
-    component: Tasks
-  },
-  {
     path: '/:pathMatch(.*)*',
-    redirect: '/home'
+    redirect: '/tasks'
   }
 ]
 
