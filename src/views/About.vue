@@ -1,12 +1,24 @@
 <template>
   <div>
     <b-table
-      :items="items"
       :fields="fields"
+      :items="tasks"
       v-model:sort-by="sortBy"
       v-model:sort-desc="sortDesc"
-      responsive="sm"
-    ></b-table>
+      responsive="sm">
+
+      <template #cell(title)="data">
+        {{ data.value }}
+      </template>
+
+      <template #cell(description)="data">
+        <b class="text-info">{{ data.value }}</b>
+      </template>
+
+      <template #cell(date)="data">
+        {{ this.reverseDate(data.value) }}
+      </template>
+    </b-table>
   </div>
 </template>
 
@@ -20,15 +32,19 @@ export default {
     return {
       sortBy: 'date',
       sortDesc: false,
-      noLocalSorting: true,
-      filterDate: '',
+      noBorderCollapse: true,
+      striped: true,
+      bordered: true,
+      hover: true,
+      fixed: true,
+      footClone: true,
       fields: [
-        { key: 'title', sortable: true },
-        { key: 'description', sortable: false },
-        { key: 'date', sortKey: this.sortBy, sortable: true },
-        { key: 'actions', sortable: false }
+        { key: 'title', sortable: true, thStyle: { width: '25%' } },
+        { key: 'description', sortable: false, thStyle: { width: '40%' } },
+        { key: 'date', sortKey: this.sortBy, sortable: true, thStyle: { width: '15%' } },
+        { key: 'actions', sortable: false, thStyle: { width: '20%' } }
       ],
-      items: []
+      tasks: []
     }
   },
   mounted () {
@@ -45,7 +61,7 @@ export default {
     fetch(backend + '/api/v2/tasks', requestOptions)
       .then(response => response.json())
       .then(result => result.forEach(task => {
-        this.items.push({ title: task.titel, description: task.inhalt, date: new Date(task.datum).toLocaleDateString() })
+        this.tasks.push({ title: task.titel, description: task.inhalt, date: this.reverseDate(new Date(task.datum).toLocaleDateString()) })
       }))
       .catch(error => console.log('error', error))
   },
@@ -84,7 +100,28 @@ export default {
           document.location.reload()
         })
         .catch(error => console.log('error', error))
+    },
+    reverseDate (date) {
+      const splitDate = date.toLocaleString().split('.')
+      return (splitDate[2] + '.' + splitDate[1] + '.' + splitDate[0])
     }
   }
 }
 </script>
+
+<style scoped>
+h3 {
+  margin: 40px 0 0;
+}
+ul {
+  list-style-type: none;
+  padding: 0;
+}
+li {
+  display: inline-block;
+  margin: 0 10px;
+}
+a {
+  color: #42b983;
+}
+</style>
