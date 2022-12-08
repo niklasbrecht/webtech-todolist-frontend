@@ -3,6 +3,9 @@
     <b-table
       :fields="fields"
       :items="tasks"
+      :no-border-collapse="noBorderCollapse"
+      :striped="striped"
+      :bordered="bordered"
       v-model:sort-by="sortBy"
       v-model:sort-desc="sortDesc"
       responsive="sm">
@@ -18,6 +21,11 @@
       <template #cell(date)="data">
         {{ this.reverseDate(data.value) }}
       </template>
+
+      <template #cell(actions)="data">
+        <b-button size="sm" @click="deleteTask(data.value)">Delete</b-button>
+      </template>
+
     </b-table>
   </div>
 </template>
@@ -33,7 +41,7 @@ export default {
       sortBy: 'date',
       sortDesc: false,
       noBorderCollapse: true,
-      striped: true,
+      striped: false,
       bordered: true,
       hover: true,
       fixed: true,
@@ -61,7 +69,7 @@ export default {
     fetch(backend + '/api/v2/tasks', requestOptions)
       .then(response => response.json())
       .then(result => result.forEach(task => {
-        this.tasks.push({ title: task.titel, description: task.inhalt, date: this.reverseDate(new Date(task.datum).toLocaleDateString()) })
+        this.addTaskLocal({ title: task.titel, description: task.inhalt, date: this.reverseDate(new Date(task.datum).toLocaleDateString()), actions: task.id })
       }))
       .catch(error => console.log('error', error))
   },
@@ -76,7 +84,6 @@ export default {
       myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
 
       const raw = JSON.stringify({
-
         datum: dateObject,
         inhalt: this.description,
         titel: this.title
@@ -91,19 +98,48 @@ export default {
 
       this.fetchResult(endpoint, requestOptions)
     },
+    deleteTask (taskId) {
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks/' + taskId
+      const myHeaders = new Headers()
+
+      myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
+
+      const requestOptions = {
+        method: 'DELETE',
+        headers: myHeaders,
+        redirect: 'follow'
+      }
+
+      fetch(endpoint, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error))
+
+      console.log(this.deleteTaskLocal(taskId))
+    },
     async fetchResult (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
         .then(async result => {
           console.log(result)
-          // reload so tasks will be shown
-          document.location.reload()
         })
         .catch(error => console.log('error', error))
     },
     reverseDate (date) {
       const splitDate = date.toLocaleString().split('.')
       return (splitDate[2] + '.' + splitDate[1] + '.' + splitDate[0])
+    },
+    addTaskLocal (task) {
+      return this.tasks.push(task)
+    },
+    deleteTaskLocal (taskId) {
+      for (let i = 0; i < this.tasks.length; i++) {
+        if (this.tasks[i].actions === taskId) {
+          this.tasks.splice(i, i)
+          return true
+        }
+      }
+      return false
     }
   }
 }
