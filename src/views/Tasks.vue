@@ -29,6 +29,7 @@
         :bordered="bordered"
         v-model:sort-by="sortBy"
         v-model:sort-desc="sortDesc"
+        sort-compare-locale="de"
         responsive="sm">
 
         <template #cell(title)="data">
@@ -40,7 +41,7 @@
         </template>
 
         <template #cell(date)="data">
-          {{ this.reverseDate(data.value) }}
+          {{ new Date(data.value).toLocaleDateString() }}
         </template>
 
         <template #cell(taskId)="data">
@@ -88,13 +89,14 @@ export default {
       redirect: 'follow'
     }
 
+    // saved date as timestamp so it gets sorted correctly
     fetch(backend + '/api/v2/tasks', requestOptions)
       .then(response => response.json())
       .then(result => result.forEach(task => {
         this.addTaskLocal({
           title: task.titel,
           description: task.inhalt,
-          date: this.reverseDate(new Date(task.datum).toLocaleDateString()),
+          date: new Date(task.datum).getTime(),
           taskId: task.id
         })
       }))
@@ -110,9 +112,9 @@ export default {
       myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
 
       const raw = JSON.stringify({
-        datum: date,
+        titel: this.fields.title,
         inhalt: this.fields.description,
-        titel: this.fields.title
+        datum: date
       })
 
       const requestOptions = {
@@ -150,7 +152,7 @@ export default {
           this.addTaskLocal({
             title: this.fields.title,
             description: this.fields.description,
-            date: this.reverseDate(new Date(this.fields.date).toLocaleDateString()),
+            date: new Date(this.fields.date).getTime(),
             taskId: result
           })
         })
@@ -168,7 +170,7 @@ export default {
     deleteTaskLocal (taskId) {
       for (let i = 0; i < this.tasks.length; i++) {
         if (this.tasks[i].taskId === taskId) {
-          this.tasks.splice(i, i)
+          this.tasks.splice(i, 1)
           return true
         }
       }
