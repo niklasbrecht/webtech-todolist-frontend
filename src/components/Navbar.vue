@@ -19,30 +19,29 @@
 </template>
 
 <script>
+import JwtToken from '@/components/JwtToken'
+
 export default {
   name: 'Nav-bar',
   mounted () {
-    if (this.loggedIn()) {
-      document.getElementById('navbar-login').innerHTML = 'logout'
-    } else {
-      document.getElementById('navbar-login').innerHTML = 'login'
-    }
+    if (JwtToken.methods.jsonTokenExpired()) JwtToken.methods.logout()
+    this.updateLoginStatus()
   },
   methods: {
     onLoginClick () {
-      if (this.loggedIn()) {
-        // log user out
-        localStorage.removeItem('jsonWebToken')
-        localStorage.removeItem('email')
-
-        // reload so modal closes and login status changes - bad solution
-        document.location.reload()
+      if (JwtToken.methods.isLoggedIn()) {
+        JwtToken.methods.logout()
+        // should close modal here
       } else {
         // open modal
       }
     },
-    loggedIn () {
-      return localStorage.getItem('jsonWebToken') != null
+    updateLoginStatus () {
+      if (JwtToken.methods.jsonTokenExpired()) {
+        document.getElementById('navbar-login').innerHTML = 'login'
+      } else {
+        document.getElementById('navbar-login').innerHTML = 'logout'
+      }
     }
   }
 }

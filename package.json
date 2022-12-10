@@ -16,6 +16,7 @@
     "bootstrap-vue-3": "^0.4.13",
     "core-js": "^3.8.3",
     "vue": "^3.2.45",
+    "vue-jwt-decode": "^0.1.0",
     "vue-router": "^4.0.3",
     "vue3-datepicker": "^0.3.4",
     "vue3-table-lite": "^1.2.7",

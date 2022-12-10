@@ -26,6 +26,9 @@
 </template>
 
 <script>
+
+import JwtToken from '@/components/JwtToken'
+
 export default {
   name: 'Login',
   data () {
@@ -61,11 +64,8 @@ export default {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
         .then(async result => {
-          localStorage.setItem('jsonWebToken', result)
-          localStorage.setItem('email', this.email)
-
-          // reload so login status changes and modal closes automatically - bad solution?... I dont know
-          document.location.reload()
+          JwtToken.methods.login(result)
+          // should close modal here
         })
         .catch(error => console.log('error', error))
     }

@@ -56,6 +56,8 @@
 
 <script>
 
+import JwtToken from '@/components/JwtToken'
+
 export default {
   name: 'Tasks',
   data () {
@@ -79,31 +81,12 @@ export default {
     }
   },
   mounted () {
-    const backend = process.env.VUE_APP_BACKEND_BASE_URL
-    const myHeaders = new Headers()
-    myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
-
-    const requestOptions = {
-      method: 'GET',
-      headers: myHeaders,
-      redirect: 'follow'
-    }
-
-    // saved date as timestamp so it gets sorted correctly
-    fetch(backend + '/api/v2/tasks', requestOptions)
-      .then(response => response.json())
-      .then(result => result.forEach(task => {
-        this.addTaskLocal({
-          title: task.titel,
-          description: task.inhalt,
-          date: new Date(task.datum).getTime(),
-          taskId: task.id
-        })
-      }))
-      .catch(error => console.log('error', error))
+    this.loadAllTask()
   },
   methods: {
     async createTask () {
+      if (JwtToken.methods.jsonTokenExpired()) return
+
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()
       const date = this.fields.date
@@ -126,7 +109,35 @@ export default {
 
       await this.fetchResult(endpoint, requestOptions)
     },
+    loadAllTask () {
+      if (JwtToken.methods.jsonTokenExpired()) return
+
+      const backend = process.env.VUE_APP_BACKEND_BASE_URL
+      const myHeaders = new Headers()
+      myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
+
+      const requestOptions = {
+        method: 'GET',
+        headers: myHeaders,
+        redirect: 'follow'
+      }
+
+      // saved date as timestamp so it gets sorted correctly
+      fetch(backend + '/api/v2/tasks', requestOptions)
+        .then(response => response.json())
+        .then(result => result.forEach(task => {
+          this.addTaskLocal({
+            title: task.titel,
+            description: task.inhalt,
+            date: new Date(task.datum).getTime(),
+            taskId: task.id
+          })
+        }))
+        .catch(error => console.log('error', error))
+    },
     deleteTask (taskId) {
+      if (JwtToken.methods.jsonTokenExpired()) return
+
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks/' + taskId
       const myHeaders = new Headers()
 
@@ -159,10 +170,6 @@ export default {
         .catch(error => {
           console.log('error', error)
         })
-    },
-    reverseDate (date) {
-      const splitDate = date.toLocaleString().split('.')
-      return (splitDate[2] + '.' + splitDate[1] + '.' + splitDate[0])
     },
     addTaskLocal (task) {
       return this.tasks.push(task)
