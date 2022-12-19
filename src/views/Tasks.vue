@@ -12,7 +12,7 @@
 
         <b-col sm="auto">
           <label> Date:</label>
-          <Datepicker v-model="fields.date"> </Datepicker>
+          <b-form-input type="date" v-model="fields.date"> </b-form-input>
           <b-button variant="success" @click.prevent="createTask">Add Task</b-button>
         </b-col>
       </b-input-group-append>
@@ -33,18 +33,25 @@
         responsive="sm">
 
         <template #cell(title)="data">
-          {{ data.value }}
+          <b-form-input v-if="tasks[getTaskIndexById(data.item.taskId)].isEdit" v-model="tasks[getTaskIndexById(data.item.taskId)].title"> </b-form-input>
+          <span v-else>{{data.value}}</span>
         </template>
 
         <template #cell(description)="data">
-          <b class="text-info">{{ data.value }}</b>
+          <b-form-input v-if="tasks[getTaskIndexById(data.item.taskId)].isEdit" type="text" v-model="tasks[getTaskIndexById(data.item.taskId)].description"> <b class="text-info"></b></b-form-input>
+          <span v-else>{{data.value}}</span>
         </template>
 
         <template #cell(date)="data">
-          {{ new Date(data.value).toLocaleDateString() }}
+          <b-form-input v-if="tasks[getTaskIndexById(data.item.taskId)].isEdit" type="date" v-model="tasks[getTaskIndexById(data.item.taskId)].date"></b-form-input>
+          <span v-else>{{ new Date(data.value).toLocaleDateString() }}</span>
         </template>
 
         <template #cell(taskId)="data">
+          <b-button size="sm" @click="editRow(data.value)">
+            <span v-if="!tasks[getTaskIndexById(data.value)].isEdit">Edit</span>
+            <span v-else>Done</span>
+          </b-button>
           <b-button size="sm" @click="deleteTask(data.value)">Delete</b-button>
         </template>
 
@@ -82,6 +89,7 @@ export default {
   },
   mounted () {
     this.loadAllTask()
+    this.tasks = this.tasks.map(task => ({ ...task, isEdit: false }))
   },
   methods: {
     async createTask () {
@@ -89,7 +97,6 @@ export default {
 
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()
-      const date = this.fields.date
 
       myHeaders.append('Content-Type', 'application/json')
       myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
@@ -97,7 +104,7 @@ export default {
       const raw = JSON.stringify({
         titel: this.fields.title,
         inhalt: this.fields.description,
-        datum: date
+        datum: this.fields.date
       })
 
       const requestOptions = {
@@ -156,6 +163,33 @@ export default {
 
       console.log(this.deleteTaskLocal(taskId))
     },
+    updateTask (taskId) {
+      if (JwtToken.methods.jsonTokenExpired()) return
+
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks/' + taskId
+      const myHeaders = new Headers()
+
+      myHeaders.append('Content-Type', 'application/json')
+      myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
+
+      const raw = JSON.stringify({
+        titel: this.tasks[this.getTaskIndexById(taskId)].title,
+        inhalt: this.tasks[this.getTaskIndexById(taskId)].description,
+        datum: this.tasks[this.getTaskIndexById(taskId)].date
+      })
+
+      const requestOptions = {
+        method: 'PUT',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      }
+
+      fetch(endpoint, requestOptions)
+        .then(response => response.text())
+        .then(result => console.log(result))
+        .catch(error => console.log('error', error))
+    },
     async fetchResult (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
@@ -170,6 +204,22 @@ export default {
         .catch(error => {
           console.log('error', error)
         })
+    },
+    getTaskIndexById (taskId) {
+      for (let i = 0; i < this.tasks.length; i++) {
+        if (this.tasks[i].taskId === taskId) {
+          return i
+        }
+      }
+      return null
+    },
+    editRow (taskId) {
+      this.tasks[this.getTaskIndexById(taskId)].isEdit = !this.tasks[this.getTaskIndexById(taskId)].isEdit
+
+      // task gets updated after done button pressed
+      if (!this.tasks[this.getTaskIndexById(taskId)].isEdit) {
+        this.updateTask(taskId)
+      }
     },
     addTaskLocal (task) {
       return this.tasks.push(task)

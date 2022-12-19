@@ -16,7 +16,7 @@
                 <input type="password" class="form-control" id="exampleInputPassword1" v-model="password">
               </div>
               <button type="submit" class="btn btn-light mt-3" @click.prevent="requestToken">LOGIN</button>
-              <p>Not a member? <a href="#">Signup now</a></p>
+              <p>Not a member? <a href="">Signup now</a></p>
             </form>
           </div>
         </div>
@@ -38,7 +38,11 @@ export default {
     }
   },
   methods: {
+    mouted () {
+      // this.theModal = new Modal(document.getElementById('LoginModalForm'))
+    },
     requestToken () {
+      console.log(1)
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/auth'
 
       // create a buffer
@@ -68,6 +72,7 @@ export default {
           // should close modal here
         })
         .catch(error => console.log('error', error))
+      this.$router.push('/')
     }
   }
 }

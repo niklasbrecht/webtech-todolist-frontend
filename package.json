@@ -18,7 +18,6 @@
     "vue": "^3.2.45",
     "vue-jwt-decode": "^0.1.0",
     "vue-router": "^4.0.3",
-    "vue3-datepicker": "^0.3.4",
     "vue3-table-lite": "^1.2.7",
     "webpack": "^5.75.0"
   },
