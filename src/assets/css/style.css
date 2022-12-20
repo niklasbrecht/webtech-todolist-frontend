@@ -1,0 +1,13 @@
+div {
+    margin-bottom: 30px;
+    margin-top: 25px;
+}
+
+.loginModal {
+    width: 300px;
+    padding: 30px;
+    box-sizing: border-box;
+    background-color: #fff;
+    font-size: 20px;
+    text-align: center;
+}

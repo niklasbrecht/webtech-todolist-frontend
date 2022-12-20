@@ -88,8 +88,15 @@ export default {
     }
   },
   mounted () {
-    this.loadAllTask()
-    this.tasks = this.tasks.map(task => ({ ...task, isEdit: false }))
+    this.emitter.on('loadTasks', () => {
+      this.loadAllTask()
+    })
+
+    this.emitter.on('emptyTasks', () => {
+      this.tasks = []
+    })
+
+    this.emitter.emit('loadTasks')
   },
   methods: {
     async createTask () {
@@ -118,6 +125,8 @@ export default {
     },
     loadAllTask () {
       if (JwtToken.methods.jsonTokenExpired()) return
+
+      this.tasks = this.tasks.map(task => ({ ...task, isEdit: false }))
 
       const backend = process.env.VUE_APP_BACKEND_BASE_URL
       const myHeaders = new Headers()
@@ -237,10 +246,6 @@ export default {
 }
 </script>
 
-<style scoped>
+<style scoped src="../assets/css/style.css">
 
-div {
-  margin-bottom: 30px;
-  margin-top: 25px;
-}
 </style>
