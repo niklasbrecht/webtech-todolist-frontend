@@ -24,10 +24,10 @@
     <div class="loginModal">
       <b-row sm="auto">
         <label> Email:</label>
-        <b-form-input v-model="email"></b-form-input>
+        <b-form-input v-model="email" :state="inputValidationMail"></b-form-input>
 
         <label> Password:</label>
-        <b-form-input v-model="password"></b-form-input>
+        <b-form-input v-model="password" :state="inputValidationPassword"></b-form-input>
       </b-row>
       <button @click="requestToken">
         Login
@@ -69,6 +69,16 @@ export default defineComponent({
   mounted () {
     if (JwtToken.methods.jsonTokenExpired()) JwtToken.methods.logout()
     this.updateLoginStatus()
+  },
+  computed: {
+    inputValidationMail () {
+      // email needs to have @ in it
+      return this.email.includes('@')
+    },
+    inputValidationPassword () {
+      // Password needs to be atleast 3 characters long
+      return this.password.length > 2
+    }
   },
   methods: {
     onLoginClick () {
