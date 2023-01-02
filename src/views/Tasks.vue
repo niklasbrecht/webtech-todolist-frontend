@@ -4,15 +4,15 @@
       <b-input-group-append>
         <b-row sm="auto">
           <label> Titel:</label>
-          <b-form-input v-model="fields.title"></b-form-input>
+          <b-form-input v-model="fields.title" :state="inputValidationTitle"></b-form-input>
 
           <label> Description:</label>
-          <b-form-input v-model="fields.description"></b-form-input>
+          <b-form-input v-model="fields.description" :state="inputValidationDescription"></b-form-input>
         </b-row>
 
         <b-col sm="auto">
           <label> Date:</label>
-          <b-form-input type="date" v-model="fields.date"> </b-form-input>
+          <b-form-input type="date" v-model="fields.date" :state="inputValidationDate"> </b-form-input>
           <b-button variant="success" @click.prevent="createTask">Add Task</b-button>
         </b-col>
       </b-input-group-append>
@@ -98,9 +98,23 @@ export default {
 
     this.emitter.emit('loadTasks')
   },
+  computed: {
+    inputValidationTitle () {
+      // input not empty
+      return (this.fields.title !== undefined && this.fields.title.length > 0)
+    },
+    inputValidationDescription () {
+      // input not empty
+      return (this.fields.description !== undefined && this.fields.description.length > 0)
+    },
+    inputValidationDate () {
+      // input not empty
+      return (this.fields.date !== undefined)
+    }
+  },
   methods: {
     async createTask () {
-      if (JwtToken.methods.jsonTokenExpired()) return
+      if (JwtToken.methods.jsonTokenExpired() || (!this.inputValidationTitle || !this.inputValidationDescription || !this.inputValidationDate)) return
 
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()

@@ -99,6 +99,8 @@ export default defineComponent({
       }
     },
     requestToken () {
+      if (!this.inputValidationMail || !this.inputValidationPassword) return
+
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/auth'
 
       // create a buffer
