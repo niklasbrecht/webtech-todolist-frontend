@@ -73,10 +73,12 @@ export default defineComponent({
   computed: {
     inputValidationMail () {
       // email needs to have @ in it
+      if (this.email === '') return null
       return this.email.includes('@')
     },
     inputValidationPassword () {
       // Password needs to be atleast 3 characters long
+      if (this.password === '') return null
       return this.password.length > 2
     }
   },

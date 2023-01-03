@@ -12,10 +12,13 @@
 
         <b-col sm="auto">
           <label> Date:</label>
-          <b-form-input type="date" v-model="fields.date" :state="inputValidationDate"> </b-form-input>
+          <b-form-input type="date" v-model="fields.date"> </b-form-input>
           <b-button variant="success" @click.prevent="createTask">Add Task</b-button>
         </b-col>
       </b-input-group-append>
+
+      <label> Filter:</label>
+      <b-form-input v-model="filter" v-on:input="filterTasks"></b-form-input>
     </b-container>
   </div>
 
@@ -77,14 +80,15 @@ export default {
       hover: true,
       fixed: true,
       footClone: true,
-      filter: null,
+      filter: '',
       fields: [
         { key: 'title', sortable: true, thStyle: { width: '25%' } },
         { key: 'description', sortable: false, thStyle: { width: '40%' } },
         { key: 'date', sortKey: this.sortBy, sortable: true, thStyle: { width: '15%' } },
         { key: 'taskId', label: 'Actions', sortable: false, thStyle: { width: '20%' } }
       ],
-      tasks: []
+      tasks: [],
+      filteredTasks: []
     }
   },
   mounted () {
@@ -101,11 +105,13 @@ export default {
   computed: {
     inputValidationTitle () {
       // input not empty
-      return (this.fields.title !== undefined && this.fields.title.length > 0)
+      if (this.fields.title === undefined) return null
+      return this.fields.title.length > 3
     },
     inputValidationDescription () {
       // input not empty
-      return (this.fields.description !== undefined && this.fields.description.length > 0)
+      if (this.fields.description === undefined) return null
+      return this.fields.description.length > 3
     },
     inputValidationDate () {
       // input not empty
@@ -114,13 +120,17 @@ export default {
   },
   methods: {
     async createTask () {
-      if (JwtToken.methods.jsonTokenExpired() || (!this.inputValidationTitle || !this.inputValidationDescription || !this.inputValidationDate)) return
+      if (JwtToken.methods.jsonTokenExpired() || (!this.inputValidationTitle || !this.inputValidationDescription)) return
 
       const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v2/tasks'
       const myHeaders = new Headers()
 
       myHeaders.append('Content-Type', 'application/json')
       myHeaders.append('Authorization', 'Bearer ' + localStorage.getItem('jsonWebToken'))
+
+      if (!this.inputValidationDate) {
+        this.fields.date = new Date().getTime()
+      }
 
       const raw = JSON.stringify({
         titel: this.fields.title,
@@ -140,7 +150,7 @@ export default {
     loadAllTask () {
       if (JwtToken.methods.jsonTokenExpired()) return
 
-      this.tasks = this.tasks.map(task => ({ ...task, isEdit: false }))
+      this.tasks = this.tasks.map(task => ({ ...task, isEdit: false, isHidden: false }))
 
       const backend = process.env.VUE_APP_BACKEND_BASE_URL
       const myHeaders = new Headers()
@@ -255,6 +265,27 @@ export default {
         }
       }
       return false
+    },
+    filterTasks () {
+      for (let i = 0; i < this.tasks.length; i++) {
+        if ((!this.tasks[i].title.toLowerCase().startsWith(this.filter.toLowerCase()) &&
+          !this.tasks[i].description.toLowerCase().startsWith(this.filter.toLowerCase())) &&
+          this.filter !== '') {
+          this.filteredTasks.push(this.tasks[i])
+          this.tasks.splice(i, 1)
+          i--
+        }
+      }
+
+      for (let i = 0; i < this.filteredTasks.length; i++) {
+        if (this.filteredTasks[i].title.toLowerCase().startsWith(this.filter.toLowerCase()) ||
+          this.filteredTasks[i].description.toLowerCase().startsWith(this.filter.toLowerCase()) ||
+          this.filter === '') {
+          this.addTaskLocal(this.filteredTasks[i])
+          this.filteredTasks.splice(i, 1)
+          i--
+        }
+      }
     }
   }
 }
