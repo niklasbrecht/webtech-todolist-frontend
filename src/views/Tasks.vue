@@ -92,15 +92,18 @@ export default {
     }
   },
   mounted () {
-    this.emitter.on('loadTasks', () => {
-      this.loadAllTask()
-    })
+    // check prevents unit testing from throwing an undefined error
+    if (this.emitter !== undefined) {
+      this.emitter.on('loadTasks', () => {
+        this.loadAllTask()
+      })
 
-    this.emitter.on('emptyTasks', () => {
-      this.tasks = []
-    })
+      this.emitter.on('emptyTasks', () => {
+        this.tasks = []
+      })
 
-    this.emitter.emit('loadTasks')
+      this.emitter.emit('loadTasks')
+    }
   },
   computed: {
     inputValidationTitle () {
