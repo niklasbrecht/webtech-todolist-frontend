@@ -23,15 +23,26 @@
   >
     <div class="loginModal">
       <b-row sm="auto">
+        <label v-if="showRegistration"> Name:</label>
+        <b-form-input v-model="name" v-if="showRegistration"></b-form-input>
+
+        <label v-if="showRegistration"> Surname:</label>
+        <b-form-input v-model="surname" v-if="showRegistration"></b-form-input>
+
         <label> Email:</label>
         <b-form-input v-model="email" :state="inputValidationMail"></b-form-input>
 
         <label> Password:</label>
         <b-form-input v-model="password" :state="inputValidationPassword"></b-form-input>
       </b-row>
-      <button @click="requestToken">
+      <button @click.prevent="registerUser" v-if="showRegistration">
+        Register
+      </button>
+      <button @click="requestToken" v-else>
         Login
       </button>
+        <b-button variant="link" id="right-panel-link" v-if="showRegistration" @click="toggleRegistration">Login</b-button>
+        <b-button variant="link" id="right-panel-link" @click="toggleRegistration" v-else>Register</b-button>
     </div>
   </Modal>
 </template>
@@ -45,8 +56,11 @@ export default defineComponent({
   name: 'Nav-bar',
   data () {
     return {
+      name: '',
+      surname: '',
       email: '',
-      password: ''
+      password: '',
+      showRegistration: false
     }
   },
   setup () {
@@ -100,6 +114,33 @@ export default defineComponent({
         document.getElementById('navbar-login').innerHTML = 'logout'
       }
     },
+    toggleRegistration () {
+      this.showRegistration = !this.showRegistration
+    },
+    registerUser () {
+      if ((!this.inputValidationMail || !this.inputValidationPassword)) return
+
+      const endpoint = process.env.VUE_APP_BACKEND_BASE_URL + '/api/v1/registration'
+      const myHeaders = new Headers()
+
+      myHeaders.append('Content-Type', 'application/json')
+
+      const raw = JSON.stringify({
+        vorname: this.name,
+        nachname: this.surname,
+        email: this.email,
+        passwort: this.password
+      })
+
+      const requestOptions = {
+        method: 'POST',
+        headers: myHeaders,
+        body: raw,
+        redirect: 'follow'
+      }
+
+      this.registerUserFetch(endpoint, requestOptions)
+    },
     requestToken () {
       if (!this.inputValidationMail || !this.inputValidationPassword) return
 
@@ -121,10 +162,10 @@ export default defineComponent({
         redirect: 'follow'
       }
 
-      this.fetchResult(endpoint, requestOptions)
+      this.requestTokenFetch(endpoint, requestOptions)
     },
     // calls async method so json-web-token waits for result
-    async fetchResult (endpoint, requestOptions) {
+    async requestTokenFetch (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
         .then(async result => {
@@ -136,6 +177,14 @@ export default defineComponent({
         })
         .catch(error => console.log('error', error))
       this.$router.push('/')
+    },
+    async registerUserFetch (endpoint, requestOptions) {
+      fetch(endpoint, requestOptions)
+        .then(response => response.text())
+        .then(async result => {
+          this.requestToken()
+        })
+        .catch(error => console.log('error', error))
     }
   }
 })

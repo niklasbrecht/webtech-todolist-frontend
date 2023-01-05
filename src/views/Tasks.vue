@@ -145,7 +145,7 @@ export default {
         redirect: 'follow'
       }
 
-      await this.fetchResult(endpoint, requestOptions)
+      await this.createTaskFetch(endpoint, requestOptions)
     },
     loadAllTask () {
       if (JwtToken.methods.jsonTokenExpired()) return
@@ -223,7 +223,7 @@ export default {
         .then(result => console.log(result))
         .catch(error => console.log('error', error))
     },
-    async fetchResult (endpoint, requestOptions) {
+    async createTaskFetch (endpoint, requestOptions) {
       fetch(endpoint, requestOptions)
         .then(response => response.text())
         .then(async result => {

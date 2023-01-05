@@ -17,3 +17,7 @@ button {
     font-size: 20px;
     text-align: center;
 }
+
+#right-panel-link {
+    position: fixed;
+}

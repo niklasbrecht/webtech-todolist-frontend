@@ -16,6 +16,7 @@
     "bootstrap-vue-3": "^0.4.13",
     "core-js": "^3.8.3",
     "mitt": "^3.0.0",
+    "node-fetch": "^3.3.0",
     "vue": "^3.2.45",
     "vue-jwt-decode": "^0.1.0",
     "vue-router": "^4.0.3",
@@ -43,6 +44,7 @@
     "eslint-plugin-promise": "^5.1.0",
     "eslint-plugin-vue": "^8.0.3",
     "jest": "^27.0.5",
-    "webpack": "^5.75.0"
+    "webpack": "^5.75.0",
+    "node-fetch": "^3.3.0"
   }
 }
