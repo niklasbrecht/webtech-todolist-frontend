@@ -33,7 +33,7 @@
         <b-form-input v-model="email" :state="inputValidationMail"></b-form-input>
 
         <label> Password:</label>
-        <b-form-input v-model="password" :state="inputValidationPassword"></b-form-input>
+        <b-form-input type="password" v-model="password" :state="inputValidationPassword"></b-form-input>
       </b-row>
       <button @click.prevent="registerUser" v-if="showRegistration">
         Register
