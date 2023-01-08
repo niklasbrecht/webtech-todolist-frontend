@@ -13,7 +13,7 @@
         <b-col sm="auto">
           <label> Date:</label>
           <b-form-input type="date" v-model="fields.date"> </b-form-input>
-          <b-button variant="success" @click.prevent="createTask">Add Task</b-button>
+          <b-button data-test="addTask" variant="success" @click.prevent="createTask">Add Task</b-button>
         </b-col>
       </b-input-group-append>
 
