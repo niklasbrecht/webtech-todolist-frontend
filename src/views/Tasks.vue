@@ -17,7 +17,7 @@
         </b-col>
       </b-input-group-append>
 
-      <label> Filter:</label>
+      <label> Keyword Filter:</label>
       <b-form-input v-model="filter" v-on:input="filterTasks"></b-form-input>
     </b-container>
   </div>
