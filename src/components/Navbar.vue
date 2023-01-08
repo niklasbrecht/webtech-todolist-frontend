@@ -12,7 +12,8 @@
         </div>
       </div>
       <ul class="nav navbar-nav navbar-right">
-        <li><a href="#" id="navbar-login" @click="onLoginClick"> Login </a></li>
+        <li data-test="login" v-if="loggedIn"><a href="#" id="navbar-login" @click="onLogoutClick"> Logout </a></li>
+        <li data-test="login" v-else><a href="#" id="navbar-login" @click="onLoginClick"> Login </a></li>
       </ul>
     </div>
   </nav>
@@ -41,7 +42,7 @@
       <button @click="requestToken" v-else>
         Login
       </button>
-        <b-button variant="link" id="right-panel-link" v-if="showRegistration" @click="toggleRegistration">Login</b-button>
+        <b-button variant="link" id="right-panel-link" v-if="showRegistration" @click="toggleRegistration"> Login</b-button>
         <b-button variant="link" id="right-panel-link" @click="toggleRegistration" v-else>Register</b-button>
     </div>
   </Modal>
@@ -60,6 +61,7 @@ export default defineComponent({
       surname: '',
       email: '',
       password: '',
+      loggedIn: false,
       showRegistration: false
     }
   },
@@ -98,21 +100,15 @@ export default defineComponent({
   },
   methods: {
     onLoginClick () {
-      if (JwtToken.methods.isLoggedIn()) {
-        JwtToken.methods.logout()
-        this.emitter.emit('emptyTasks')
-        this.updateLoginStatus()
-      } else {
-        // open modal
-        this.showModal()
-      }
+      this.showModal()
+    },
+    onLogoutClick () {
+      JwtToken.methods.logout()
+      this.emitter.emit('emptyTasks')
+      this.updateLoginStatus()
     },
     updateLoginStatus () {
-      if (JwtToken.methods.jsonTokenExpired()) {
-        document.getElementById('navbar-login').innerHTML = 'login'
-      } else {
-        document.getElementById('navbar-login').innerHTML = 'logout'
-      }
+      this.loggedIn = !JwtToken.methods.jsonTokenExpired()
     },
     toggleRegistration () {
       this.showRegistration = !this.showRegistration
